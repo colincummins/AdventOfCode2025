@@ -30,19 +30,16 @@ class Solution(StrSplitSolution):
     def part_2(self) -> int:
         largestJoltage = 0
         for bank in self.input:
-            bestJoltage = []
-            q = deque()
+            q = []
             for i in range(len(bank)):
-                if i >= len(bank) - 11 and q:
-                    bestJoltage.append(q.popleft())
-                while q and bank[i] > q[-1]:
+                while q and bank[i] > q[-1] and len(q) >= max(0,13 - len(bank) + i):
                     q.pop()
                 q.append(bank[i])
-            bestJoltage.append(q[0])
+                print("".join(q[:12]))
             
-            print(("").join(bestJoltage))
 
-            largestJoltage += int("".join(bestJoltage))
+            assert(len(q)>=12)
+            largestJoltage += int("".join(q[:12]))
 
         return largestJoltage
 
