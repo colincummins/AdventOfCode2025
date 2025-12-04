@@ -33,35 +33,37 @@ class Solution(StrSplitSolution):
 
     @answer(1505)
     def part_1(self) -> int:
-        self.initialize_grid()
-        return sum(sum(1 for x in r if (x != "." and x < 4)) for r in self.grid)
+        pass
 
     @answer(9182)
     def part_2(self) -> int:
-        removedCount = 0
+        pass 
+
+
+    @answer((1505, 9182))
+    def solve(self) -> tuple[int, int]:
+        part2 = 0
         q = deque()
         self.initialize_grid()
         for r in range(len(self.grid)):
             for c in range(len(self.grid[0])):
                 if self.grid[r][c]!="." and self.grid[r][c]<4:
                     q.append((r, c))
+
+        part1 = len(q)
         
         while q:
             r, c = q.popleft()
             if self.grid[r][c] != ".":
                 self.grid[r][c] = "."
-                removedCount += 1
+                part2 += 1
                 for newR, newC in self.getNeighbors(r, c):
                     if self.grid[newR][newC] != ".":
                         self.grid[newR][newC] -= 1
                         if self.grid[newR][newC] < 4:
                             q.append((newR, newC))
 
-        return removedCount
+        return (part1, part2)
                     
         
 
-
-    # @answer((1234, 4567))
-    # def solve(self) -> tuple[int, int]:
-    #     pass
