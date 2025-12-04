@@ -34,7 +34,6 @@ class Solution(StrSplitSolution):
     @answer(1505)
     def part_1(self) -> int:
         self.initialize_grid()
-        print(*self.grid,sep="\n")
         return sum(sum(1 for x in r if (x != "." and x < 4)) for r in self.grid)
 
     @answer(9182)
