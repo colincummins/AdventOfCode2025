@@ -3,6 +3,7 @@
 # puzzle prompt: https://adventofcode.com/2025/day/5
 
 from ...base import StrSplitSolution, answer
+from collections import defaultdict
 
 
 class Solution(StrSplitSolution):
@@ -13,9 +14,9 @@ class Solution(StrSplitSolution):
         splitIndex = self.input.index("")
         self.idRanges, self.ingredients = self.input[0:splitIndex], self.input[splitIndex + 1:]
         self.idRanges = [list(map(int, x.split("-"))) for x in self.idRanges]
-        self.ingredients = list(map(int, self.ingredients)
+        self.ingredients = list(map(int, self.ingredients))
 
-    # @answer(1234)
+    # @answer(615)
     def part_1(self) -> int:
         pass
 
@@ -23,23 +24,35 @@ class Solution(StrSplitSolution):
     def part_2(self) -> int:
         pass
 
-    # @answer((1234, 4567))
+    @answer((615, 353716783056994))
     def solve(self) -> tuple[int, int]:
-        solution1 = solution2 = 0
         self.preprocess()
-        
-        prefixSum = [0] * (max(self.ingredients) + 2)
-        for start, end in self.idRanges:
-            prefixSum[start] += 1
-            prefixSum[end + 1] -=1
+        solution1 = solution2 = 0
 
-        for i in range(1, len(prefixSum)):
-            prefixSum[i] += prefixSum[i - 1]
+        stack = []
+        self.idRanges.sort()
+
+        for start, end in self.idRanges:
+            while stack and start <= stack[-1][1]:
+                stackStart, stackEnd = stack.pop()
+                start, end = min(start, stackStart), max(end, stackEnd)
+            stack.append((start, end))
+        
+
+        for start, end in stack:
+            solution2 += end - start + 1
+
+        self.idRanges.reverse()
 
         for ingredient in self.ingredients:
-            solution1 += prefixSum[ingredient] > 0
-
+            for start, end in self.idRanges:
+                if ingredient >= start and ingredient <= end:
+                    solution1 += 1
+                    break
+        
         return (solution1, solution2)
+        
+        
 
 
 
