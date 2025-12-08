@@ -35,19 +35,6 @@ class UnionFind():
         self.parent[y] = x
         return self.size[x]
 
-    def circuitSizes(self):
-        print(self.parent.values())
-        for key in self.parent.keys():
-            self.find(key)
-        print(self.parent.values())
-        return sorted([self.size[key] for key in set(self.parent.values())], reverse = True)
-
-
-
-
-
-
-
 class Solution(StrSplitSolution):
     _year = 2025
     _day = 8
