@@ -46,8 +46,8 @@ class Point():
     def __sub__(self, other):
         return ((self.x - other.x)**2 + (self.y - other.y)**2 + (self.z - other.z)**2)**0.5
 
-@dataclass
-class Pair(frozen=True):
+@dataclass(frozen=True)
+class Pair():
     a: Point
     b: Point
 
