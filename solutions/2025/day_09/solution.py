@@ -28,15 +28,11 @@ class Solution(StrSplitSolution):
     
     @cache
     def recFindRectangles(self, upper: int, lower: int, left: int, right: int) -> int:
-        print(len(self.memo))
         hash = (upper, lower, left, right)
 
         if self.memo.get(hash) is not None:
             return self.memo.get(hash)
 
-        if upper > lower or left > right:
-            self.memo[hash] = 0
-            return 0
 
         upperLeft = self.createPointFromIndex(left, upper)
         lowerRight = self.createPointFromIndex(right, lower)
@@ -45,8 +41,14 @@ class Solution(StrSplitSolution):
         upperRight = self.createPointFromIndex(right, upper)
         opposite2 = set([lowerLeft, upperRight])
 
+        if upper > lower or left > right or (self.memo.values() and self.getRectangleArea(upperLeft, lowerRight) < max(self.memo.values())):
+            self.memo[hash] = 0
+            return 0
+
+
         if opposite1.issubset(self.allRedTiles) or opposite2.issubset(self.allRedTiles):
             self.memo[hash] = self.getRectangleArea(upperLeft, lowerRight)
+            print(self.memo[hash])
             return self.memo[hash]
 
         bestRectangle = max([
