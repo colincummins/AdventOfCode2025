@@ -54,9 +54,6 @@ class Pair():
     def __post_init__(self):
         self.dist = self.a - self.b
 
-    def __hash__(self):
-        return (self.dist, self.a, self.b)
-
 
 class Solution(StrSplitSolution):
     _year = 2025
