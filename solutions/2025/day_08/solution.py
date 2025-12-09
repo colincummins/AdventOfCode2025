@@ -37,7 +37,7 @@ class UnionFind():
         self.parent[y] = x
         return self.size[x]
 
-@dataclass
+@dataclass(frozen=True)
 class Point():
     x: int
     y: int
@@ -47,7 +47,7 @@ class Point():
         return ((self.x - other.x)**2 + (self.y - other.y)**2 + (self.z - other.z)**2)**0.5
 
 @dataclass
-class Pair():
+class Pair(frozen=True):
     a: Point
     b: Point
 
@@ -62,7 +62,7 @@ class Solution(StrSplitSolution):
     _year = 2025
     _day = 8
     def parseInput(self):
-        self.input = [tuple(map(int, x.split(","))) for x in self.input]
+        self.input = [Point(*map(int, x.split(","))) for x in self.input]
 
     # @answer(1234)
     def part_1(self) -> int:
@@ -77,24 +77,19 @@ class Solution(StrSplitSolution):
         part1 = part2 = 0
         self.parseInput()
         uf = UnionFind(self.input)
-        distances = []
-        for i in range(len(self.input) - 1):
-            for j in range(i + 1,len(self.input)):
-                a1, a2, a3 = self.input[i]
-                b1, b2, b3 = self.input[j]
-                dist = sqrt((a1 - b1)**2 + (a2 - b2)**2 + (a3 - b3)**2)
-                distances.append((dist, self.input[i], self.input[j]))
+
+        distances = [(a - b, a, b) for a, b in combinations(self.input, 2)]
         heapify(distances)
 
         cordsUsed = 0
         while distances and not (part1 and part2):
-            dist, x, y = heappop(distances)
+            _, a, b = heappop(distances)
             cordsUsed += 1
-            connected = uf.union(x, y)
+            connected = uf.union(a, b)
             if cordsUsed == 1000:
                 part1 =prod(sorted(uf.size.values(), reverse = True)[:3])
             if connected == len(self.input):
-                part2 = x[0] * y[0]
+                part2 = a.x * b.x
 
         return (part1, part2)
 
