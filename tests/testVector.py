@@ -1,17 +1,14 @@
 from ..solutions.utils.vectors import Point, Vector
-import unittest
+import pytest
 
-class TestVector(unittest.TestCase):
-    def setUp(self):
-        a = Point(0, 0)
-        b = Point(0, 3)
-        c = Point(3, 0)
-        self.ab = Vector(a, b)
-        self.ac = Vector(a, c)
+@pytest.fixture
+def setUp():
+    a = Point(0, 0)
+    b = Point(0, 3)
+    c = Point(3, 0)
+    ab = Vector(a, b)
+    ac = Vector(a, c)
+    yield ab, ac
     
-    def testLen(self) -> None:
-        self.assertEqual(self.ab.magnitude, 3)
-        self.assertEqual(self.ab.magnitude, 3)
-
-if __name__ == "main":
-    unittest.main()
+def testLen(setUp):
+    assert(ab.magnitude== 3)
