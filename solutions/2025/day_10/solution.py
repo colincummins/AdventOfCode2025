@@ -31,6 +31,9 @@ class Solution(StrSplitSolution):
     def parseInput(self):
         self.input = [self.parseLine(line) for line in self.input]
 
+    def getAstar(self, joltages: tuple[int]) -> int:
+        return (sum(map(lambda x: x**2, joltages)))**(1/len(joltages))
+
 
 
 
@@ -72,7 +75,7 @@ class Solution(StrSplitSolution):
             astar = defaultdict(lambda: inf)
 
             dist[joltages] = 0
-            astar[joltages] = sum(joltages)
+            astar[joltages] = self.getAstar(joltages)
 
             # AStar Distance, Current Distance, Joltages
             heap = [(0, 0, tuple(joltages))]
@@ -99,7 +102,7 @@ class Solution(StrSplitSolution):
                     neighbor = tuple(neighbor)
                     if dist[joltages] + 1 < dist[neighbor]:
                         dist[neighbor] = dist[joltages] + 1
-                        astar[neighbor] = dist[joltages] + 1 + sum(neighbor)
+                        astar[neighbor] = dist[joltages] + 1 + self.getAstar(neighbor)
                         if neighbor not in visited:
                             heappush(heap, (astar[neighbor], dist[neighbor], neighbor))
 
