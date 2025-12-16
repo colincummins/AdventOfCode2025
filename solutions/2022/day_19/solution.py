@@ -49,6 +49,13 @@ class Solution(StrSplitSolution):
             if ore >= obsidianRobotOreCost and clay >= obsidianRobotClayCost and obsidianBot <= geodeRobotObsidianCost:
                 scenarios.append(tryBlueprint(oreBot, clayBot, obsidianBot + 1, geodeBot, ore + oreBot - obsidianRobotOreCost, clay + clayBot - obsidianRobotClayCost, obsidian + obsidianBot, geodes + geodeBot, turns + 1))
 
+            # Wait and build orebot
+
+            # Wait and build claybot
+
+            # Wait and build obsidianbot
+
+            # Wait and build geodes
             if (clayBot == 0) or (ore < maxOreCost and oreBot < maxOreCost) or (clay < maxClayCost and clayBot < maxClayCost) or (obsidianBot and obsidian < maxObsidianCost and obsidianBot < maxObsidianCost):
                 scenarios.append(tryBlueprint(oreBot, clayBot, obsidianBot, geodeBot, ore + oreBot, clay + clayBot, obsidian + obsidianBot, geodes + geodeBot, turns + 1))
 
