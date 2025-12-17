@@ -82,17 +82,12 @@ class Solution(StrSplitSolution):
             part1 += buildResult * blueprintNum
 
         part2 = 1
-        """
-        TURN_LIMIT = 32
+        TURN_LIMIT = 33
         for line in self.input[:3]:
             tryBlueprint.cache_clear()
             blueprintNum, oreRobotCost, clayRobotCost, obsidianRobotOreCost, obsidianRobotClayCost, geodeRobotOreCost, geodeRobotObsidianCost = self.extractNums(line)
-            maxOreCost = max(oreRobotCost, clayRobotCost, obsidianRobotOreCost, geodeRobotOreCost)
-            maxClayCost = obsidianRobotClayCost
-            maxObsidianCost = geodeRobotObsidianCost
-
             buildResult = tryBlueprint(1, 0, 0, 0, 0, 0, 0, 0, 1) 
             print("Blueprint: ", blueprintNum, " resulted in", buildResult, " geodes")
             part2 *= buildResult
-            """
+
         return part1, part2
