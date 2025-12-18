@@ -64,17 +64,7 @@ class DoublyLinkedList():
         nodeToInsert.next = leadingNode
 
     def shift(self, index: int, offset: int):
-        if offset < 0:
-            offset = offset + len(self) - 1
-        if offset == 0:
-            return
-        node = self.nodeDict[index]
-        ptr = node.prev
-        node.remove()
-        while offset != 0:
-            offset -= 1
-            ptr = ptr.next
-        self.insert(node, ptr)
+        pass
 
     def find(self, key:int):
         curr = self.head
