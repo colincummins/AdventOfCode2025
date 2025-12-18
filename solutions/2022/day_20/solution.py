@@ -64,7 +64,7 @@ class DoublyLinkedList():
         nodeToInsert.next = leadingNode
 
     def shift(self, index: int, offset: int):
-        offset %= len(self) - 1
+        offset %= (len(self) - 1) 
         if offset == 0:
             return
         node = self.nodeDict[index]
@@ -98,13 +98,17 @@ class Solution(IntSplitSolution):
 
     # @answer(1234)
     def part_1(self) -> int:
-        """
-        nodes = DoublyLinkedList([1, 2, 3])
-        print(nodes)
-        nodes.shift(0, 1)
-        print(nodes)
-        """
+        pass
+
+    # @answer(1234)
+    def part_2(self) -> int:
+        pass
+
+    # @answer((1234, 4567))
+    def solve(self) -> tuple[int, int]:
+        ENCRYPTION_KEY = 811589153
         part1 = 0
+        part2 = 0
         nodes = DoublyLinkedList(self.input)
         assert(all([node.val == num for node, num in zip(nodes.nodes, self.input)]))
         for i in range(len(self.input)):
@@ -114,12 +118,15 @@ class Solution(IntSplitSolution):
             part1 += nodes.advance(1000)
             print(nodes.pointer)
 
-        return part1
+        nodes = DoublyLinkedList([x * ENCRYPTION_KEY for x in self.input])
+        assert(all([node.val == num * ENCRYPTION_KEY for node, num in zip(nodes.nodes, self.input)]))
+        for _ in range(10):
+            for i in range(len(self.input)):
+                nodes.shift(i, self.input[i])
+        nodes.find(0)
+        print(nodes.pointer)
+        for i in range(3):
+            part2 += nodes.advance(1000)
+            print(nodes.pointer)
 
-    # @answer(1234)
-    def part_2(self) -> int:
-        pass
-
-    # @answer((1234, 4567))
-    # def solve(self) -> tuple[int, int]:
-    #     pass
+        return (part1, part2)
