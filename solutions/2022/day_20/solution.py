@@ -11,7 +11,7 @@ class DllNode():
         self.prev = prev
         self.next = next
     
-    def __del__(self):
+    def remove(self):
         self.prev.next = self.next
         self.next.prev = self.prev
 
@@ -22,7 +22,7 @@ class DllNode():
         return "pos:" + self.originalPos + " val: " + self.val
 
     def __str__(self):
-        return "[pos: {} val: {}]".format(self.originalPos, self.val)
+        return "{}".format(self.val)
     
 
 class DoublyLinkedList():
@@ -41,9 +41,57 @@ class DoublyLinkedList():
         self.nodes[0].prev = self.nodes[-1]
 
         self.nodeDict = {hash(node): node for node in self.nodes}
+        self.head = self.nodes[0]
+        self.pointer = self.head
     
     def __str__(self):
-        return "<->".join([str(node) for node in self.nodes])
+        builder = []
+        curr = self.head
+        for i in range(len(self.nodes)):
+            builder.append(str(curr))
+            curr = curr.next
+        return " <-> ".join(builder)
+
+
+    def __len__(self) -> int:
+        return len(self.nodes)
+
+    def insert(self, nodeToInsert, trailingNode):
+        leadingNode = trailingNode.next
+        trailingNode.next = nodeToInsert
+        nodeToInsert.prev = trailingNode
+        leadingNode.prev = nodeToInsert
+        nodeToInsert.next = leadingNode
+
+    def shift(self, index: int, offset: int):
+        if offset < 0:
+            offset = offset + len(self) - 1
+        if offset == 0:
+            return
+        node = self.nodeDict[index]
+        ptr = node.prev
+        node.remove()
+        while offset != 0:
+            offset -= 1
+            ptr = ptr.next
+        self.insert(node, ptr)
+
+    def find(self, key:int):
+        curr = self.head
+        while curr.val != key:
+            curr = curr.next
+        self.pointer = curr
+        return curr
+
+    def advance(self, offset:int):
+        while offset > 0:
+            offset -= 1
+            self.pointer = self.pointer.next
+        return self.pointer.val
+
+    def pointerVal(self) -> int:
+        return self.pointer.val
+
 
 class Solution(IntSplitSolution):
     _year = 2022
@@ -51,10 +99,23 @@ class Solution(IntSplitSolution):
 
     # @answer(1234)
     def part_1(self) -> int:
+        """
+        nodes = DoublyLinkedList([1, 2, 3])
+        print(nodes)
+        nodes.shift(0, 1)
+        print(nodes)
+        """
+        part1 = 0
         nodes = DoublyLinkedList(self.input)
         assert(all([node.val == num for node, num in zip(nodes.nodes, self.input)]))
-        print(nodes)
-        pass
+        for i in range(len(self.input)):
+            nodes.shift(i, self.input[i])
+        nodes.find(0)
+        for i in range(3):
+            part1 += nodes.advance(1000)
+            print(nodes.pointer)
+
+        return part1
 
     # @answer(1234)
     def part_2(self) -> int:
