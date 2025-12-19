@@ -70,50 +70,57 @@ class Monkey():
         return self.inDegree < other.inDegree
 
     def solveEquation(self, leftSide: int):
-        if self.num is None:
-            self.num = leftSide
         print("{} is solving an equation for {}".format(self, leftSide))
-        if self.waiting1 is not None and self.waiting2 and self.waiting2 is not None and hasattr(self, self.waiting1) and hasattr(self, self.waiting2):
+        print(vars(self))
+        print(self.waiting1, self.waiting2)
+        print(getattr(self, self.waiting1, None))
+        if getattr(self, self.waiting1, None) is not None and getattr(self, self.waiting2, None) is not None:
             print("{} is already solved".format(self))
             return
 
-        if hasattr(self, self.waiting1):
+        if self.num is None:
+            self.num = leftSide
+        a, b = getattr(self, self.waiting1, None), getattr(self, self.waiting2, None)
+        if a is not None:
             match self.operation:
                 # leftSide = self.waiting1 + x -> x = leftSide - self.waiting1
                 case operator.add:
-                    self.__setattr__(self.waiting2, leftSide - getattr(self,self.waiting1))
+                    self.__setattr__(self.waiting2, leftSide - a)
 
                 # leftSide = self.waiting1 - x -> x = self.waiting1 - leftSide
                 case operator.sub:
-                    self.__setattr__(self.waiting2, getattr(self,self.waiting1) - leftSide)
+                    self.__setattr__(self.waiting2, a - leftSide)
 
                 # leftSide = self.waiting1 * x -> x = leftSide / self.waiting1
                 case operator.mul:
-                    self.__setattr__(self.waiting2, Fraction(leftSide, getattr(self, self.waiting1)))
+                    self.__setattr__(self.waiting2, Fraction(leftSide, a))
 
                 # leftSide = self.waiting1 / x -> x = self.waiting1 / leftSide
                 case operator.truediv:
-                    self.__setattr__(self.waiting2, Fraction(getattr(self, self.waiting1), leftSide))
+                    self.__setattr__(self.waiting2, Fraction(a, leftSide))
 
             print("{} value1 is {}".format(self, getattr(self, self.waiting1)))
 
-        elif hasattr(self, self.waiting2):
+        elif b is not None:
             match self.operation:
                 # leftSide = self.waiting2 + x -> x = leftSide - self.waiting2
                 case operator.add:
-                    self.__setattr__(self.waiting1, leftSide - getattr(self, self.waiting2))
+                    self.__setattr__(self.waiting1, leftSide - b)
 
                 # leftSide = self.waiting2 - x -> x = self.waiting2 - leftSide
                 case operator.sub:
-                    self.__setattr__(self.waiting1, getattr(self, self.waiting2) - leftSide)
+                    self.__setattr__(self.waiting1, b - leftSide)
 
                 # leftSide = self.waiting2 * x -> x = leftSide / self.waiting2
                 case operator.mul:
-                    self.__setattr__(self.waiting1, Fraction(leftSide, getattr(self, self.waiting2)))
+                    self.__setattr__(self.waiting1, Fraction(leftSide, b))
 
                 # leftSide = self.waiting2 / x -> x = self.waiting1 / leftSide
                 case operator.truediv:
-                    self.__setattr__(self.waiting1, Fraction(getattr(self, self.waiting2), leftSide))
+                    self.__setattr__(self.waiting1, Fraction(b, leftSide))
+
+        else:
+            raise ValueError("Monkey has no attributes and can't solve")
 
             print("{} value1 is {}".format(self, getattr(self, self.waiting2)))
 
@@ -178,6 +185,9 @@ class Solution(StrSplitSolution):
 
         while q:
             curr = q.popleft()
+            if curr == jungle["humn"]:
+                print("Human!")
+                return
             print("Current Monkey", curr)
             print("Their neighbors:", neighbors[curr.key])
             for neighbor in neighbors[curr.key]:
