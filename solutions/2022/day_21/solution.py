@@ -5,6 +5,8 @@
 from ...base import StrSplitSolution, answer
 import operator
 from collections import defaultdict, deque
+from heapq import heappush, heappop
+from fractions import Fraction
 
 class Monkey():
     def __init__(self, key: str, phrase: str):
@@ -15,11 +17,16 @@ class Monkey():
         if phrase.isnumeric():
             self.inDegree = 0
             self.num = int(phrase)
+            self.waiting1 = self.waiting2 = key
+            self.setOperator("=")
             return
 
         self.inDegree = 2
         self.waiting1, self.operation, self.waiting2 = phrase.split(" ")
-        match self.operation:
+        self.setOperator(self.operation)
+
+    def setOperator(self, operation: str):
+        match operation:
             case "+": 
                 self.operation = operator.add
             case "-": 
@@ -27,18 +34,26 @@ class Monkey():
             case "*": 
                 self.operation = operator.mul
             case "/": 
-                self.operation = operator.truediv
+                self.operation = Fraction
+            case "=":
+                self.operation = self.equalityOperator 
+
+
+    def equalityOperator(self, *args):
+        pass
 
     def __hash__(self):
         return hash(self.key)
 
     def listen(self, key: str, value: int):
-        self.inDegree -= 1
         self.__setattr__(key, value)
+        self.inDegree -= 1
 
-        if self.inDegree == 0:
+        if self.operation == self.equalityOperator:
+            print("equality")
+            self.num = value
+        elif self.inDegree == 0:
             self.num = self.operation(self.__getattribute__(self.waiting1), self.__getattribute__(self.waiting2))
-
 
     def shout(self) -> tuple[str, int]:
         if self.num is None:
@@ -50,6 +65,59 @@ class Monkey():
 
     def __repr__(self):
         return self.key
+
+    def __lt__(self, other) -> bool:
+        return self.inDegree < other.inDegree
+
+    def solveEquation(self, leftSide: int):
+        print("{} is solving an equation for {}".format(self, leftSide))
+        if self.waiting1 is not None and self.waiting2 and self.waiting2 is not None and hasattr(self, self.waiting1) and hasattr(self, self.waiting2):
+            print("{} is already solved".format(self))
+            return
+
+        if hasattr(self, self.waiting1):
+            match self.operation:
+                # leftSide = self.waiting1 + x -> x = leftSide - self.waiting1
+                case operator.add:
+                    self.__setattr__(self.waiting2, leftSide - getattr(self,self.waiting1))
+
+                # leftSide = self.waiting1 - x -> x = self.waiting1 - leftSide
+                case operator.sub:
+                    self.__setattr__(self.waiting2, getattr(self,self.waiting1) - leftSide)
+
+                # leftSide = self.waiting1 * x -> x = leftSide / self.waiting1
+                case operator.mul:
+                    self.__setattr__(self.waiting2, Ratio(leftSide, getattr(self, self.waiting1)))
+
+                # leftSide = self.waiting1 / x -> x = self.waiting1 / leftSide
+                case operator.truediv:
+                    self.__setattr__(self.waiting2, Ratio(getattr(self, self.waiting1), leftSide))
+
+            print("{} value1 is {}".format(self, getattr(self, self.waiting1)))
+
+        elif hasattr(self, self.waiting2):
+            match self.operation:
+                # leftSide = self.waiting2 + x -> x = leftSide - self.waiting2
+                case operator.add:
+                    self.__setattr__(self.waiting1, leftSide - getattr(self, self.waiting2))
+
+                # leftSide = self.waiting2 - x -> x = self.waiting2 - leftSide
+                case operator.sub:
+                    self.__setattr__(self.waiting1, getattr(self, self.waiting2) - leftSide)
+
+                # leftSide = self.waiting2 * x -> x = leftSide / self.waiting2
+                case operator.mul:
+                    self.__setattr__(self.waiting1, Ratio(leftSide, getattr(self, self.waiting2)))
+
+                # leftSide = self.waiting2 / x -> x = self.waiting1 / leftSide
+                case operator.truediv:
+                    self.__setattr__(self.waiting1, Ratio(getattr(self, self.waiting2), leftSide))
+
+            print("{} value1 is {}".format(self, getattr(self, self.waiting2)))
+
+        self.inDegree -= 1
+
+
 
 
 
@@ -87,24 +155,19 @@ class Solution(StrSplitSolution):
         return jungle["root"].num
 
 
-            
-
-
-
-
     # @answer(1234)
     def part_2(self) -> int:
-        neighbors = defaultdict(list)
+        neighbors = defaultdict(set)
         jungle = {}
         for line in self.input:
             key, phrase = line.split(": ")
-            if key == "humn":
-                continue
             jungle[key] = Monkey(key, phrase)
+        jungle["humn"] = Monkey(key, "humn = humn")
         print("Jungle:", jungle.values())
+        jungle["root"].setOperator("=")
         for monkey in jungle.values():
             for neighbor in monkey.getWaiting():
-                neighbors[neighbor].append(monkey)
+                neighbors[neighbor].add(monkey)
         print("Neighbors:", neighbors)
 
         q = deque(filter(lambda x: x.inDegree == 0, jungle.values()))
@@ -121,10 +184,26 @@ class Solution(StrSplitSolution):
                     print("Neighbor {} has calculated their number: {}".format(neighbor.key, neighbor.num))
                     q.append(neighbor)
 
-        print("Final queue:", q)
+        heap = [jungle["root"]]
         print(vars(jungle["root"]))
-        print("Monkeys:", [vars(x) if x.number is None else None for x in jungle.values()])
 
+        while heap:
+            curr = heap.pop()
+            print("Popped {} from heap".format(curr))
+            assert(curr.num is not None)
+            for neighbor in [curr.waiting1, curr.waiting2]:
+                if neighbor is not None:
+                    neighbor = jungle[neighbor]
+                    print("{} is passing {} to {} for a solution".format(curr, curr.num, neighbor))
+                    neighbor.solveEquation(curr.num)
+                    heappush(heap, neighbor)
+
+        print("Final queue:", q)
+        print("root:",vars(jungle["root"]))
+        print("humn:",vars(jungle["root"]))
+        print("Monkeys:", [vars(x) if x.num is None else None for x in jungle.values()])
+
+        return 0
 
 
     # @answer((1234, 4567))
