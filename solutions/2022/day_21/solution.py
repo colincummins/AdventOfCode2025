@@ -17,15 +17,17 @@ class Monkey():
         self.numDict = defaultdict(lambda: None)
 
         if bool(fullmatch(r"^-?\d+$", phrase)):
-            self.inDegree = 0
             self.num = int(phrase)
             self.operation = None
             self.isNumber = True
         else:
-            self.inDegree = 2
             first, self.operation, second = phrase.split(" ")
             self.waiting = [first, second]
             self.setOperator(self.operation)
+
+    @property
+    def inDegree(self):
+        return len(self.waiting) - len(self.numDict)
 
     @property
     def leftAncestorKey(self):
@@ -70,7 +72,6 @@ class Monkey():
 
     def listen(self, key: str, value: int):
         self.numDict[key] = value
-        self.inDegree -= 1
 
         if self.operation == self.equalityOperator:
             self.num = value
@@ -187,7 +188,6 @@ class Solution(StrSplitSolution):
 
     # @answer(1234)
     def part_2(self) -> int:
-        return 0
         ANSWERNODE = "humn"
         neighbors = defaultdict(set)
         jungle = {}
