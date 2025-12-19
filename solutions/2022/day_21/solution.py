@@ -190,7 +190,7 @@ class Solution(StrSplitSolution):
                     print("Neighbor {} has calculated their number: {}".format(neighbor.key, neighbor.num))
                     q.append(neighbor)
 
-        print("root has a value of {}. Attempting to resolve...".format(jungle["root"]))
+        print("root has a value of {}. Attempting to resolve...".format(jungle["root"].num))
 
         heap = [jungle["root"]]
         print(vars(jungle["root"]))
