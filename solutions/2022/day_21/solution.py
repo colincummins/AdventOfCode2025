@@ -190,7 +190,11 @@ class Solution(StrSplitSolution):
                 if neighbor.inDegree == 0:
                     q.append(neighbor)
 
-        print(jungle)
+        # create human node to catch answer
+        human = Monkey("humn","0 = 0")
+        human.operation = None
+        human.waiting1 = human.waiting2 = None
+        jungle["humn"] = human
 
         q = deque([jungle["root"]])
         while q:
@@ -200,6 +204,8 @@ class Solution(StrSplitSolution):
                     ancestor = jungle[ancestor] 
                     ancestor.solveEquation(curr.num)
                     q.append(ancestor)
+
+        print(jungle)
 
         return 0
     # @answer((1234, 4567))
