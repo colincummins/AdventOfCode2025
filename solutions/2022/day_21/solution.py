@@ -176,10 +176,10 @@ class Solution(StrSplitSolution):
             for neighbor in monkey.getWaiting():
                 neighbors[neighbor].add(monkey)
 
-        # TODO - Change human value here? Infinite in-degree? Equality operator
-
+        jungle["humn"].inDegree = float("inf")
 
         q = deque(filter(lambda x: x.inDegree == 0, jungle.values()))
+        print(q)
 
         while q:
             curr = q.pop()
