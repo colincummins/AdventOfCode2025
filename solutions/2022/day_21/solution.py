@@ -79,11 +79,6 @@ class Monkey():
             self.num = leftSide
 
         print(vars(self))
-        """
-{'key': 'plzp', 'num': Fraction(48165982835110, 1), 'waiting1': 'nmsp', 'waiting2': 'lsdl', 'inDegree': 1, 'operation': <class 'fractions.Fraction'>, 'lsdl': 9}
-nmsp resolved to None
-
-        """
         a, b = getattr(self, self.waiting1, None), getattr(self, self.waiting2, None)
         print("a: {}, b: {}".format(a, b))
         if a is not None:
@@ -100,7 +95,7 @@ nmsp resolved to None
                     # leftside = a * b =>
                     b = Fraction(leftSide, a)
 
-                case operator.truediv:
+                case _:
                     # leftside = a / b =>
                     b = Fraction(a, leftSide)
             print("b = {}".format(a))
@@ -122,7 +117,7 @@ nmsp resolved to None
                     # leftside = a * b =>
                     a = Fraction(leftSide, b)
 
-                case operator.truediv:
+                case _:
                     # leftside = a / b =>
                     a = leftSide * b
             print("a = {}".format(a))
@@ -201,8 +196,6 @@ class Solution(StrSplitSolution):
         while q:
             curr = q.pop()
             for ancestor in [curr.waiting1, curr.waiting2]:
-                if ancestor == ANSWERNODE:
-                    return curr.num
                 if ancestor is not None:
                     ancestor = jungle[ancestor] 
                     ancestor.solveEquation(curr.num)
