@@ -74,6 +74,7 @@ class Solution(StrSplitSolution):
 
     # @answer(1234)
     def part_2(self) -> int:
+        solution = 0
         divisible = array([2, 1, 1, 2])
         divisibleZero = array([0, 1, 1, 2])
         indivisible = array([3, 1, 1, 2])
@@ -100,8 +101,13 @@ class Solution(StrSplitSolution):
                 if all([x == 0 for x in remainingJoltage]):
                     return 0
 
-                for combo in buttonCombos:
-                    print(combo)
+
+                if (remainingJoltage % 2 == 0).all():
+                    logJoltage = 2 * recNumPresses(tuple(remainingJoltage / 2))
+                    if logJoltage < inf:
+                        return logJoltage
+
+                return min(min([1 + recNumPresses(tuple(remainingJoltage - currButton)) for currButton in buttons]), min([2 + recNumPresses(tuple(remainingJoltage - combo)) for combo in buttonCombos]))
 
             assert recNumPresses((0,0,0,0)) == 0
             assert recNumPresses((-1,0,0,0)) == inf
@@ -110,9 +116,9 @@ class Solution(StrSplitSolution):
             self.debug("New Line:")
             self.debug(buttons, joltages)
 
-            recNumPresses(joltages)
+            solution += recNumPresses(joltages)
 
-        return part2solution 
+        return solution 
 
     # @answer((0, 0))
     # def solve(self) -> tuple[int, int]:
