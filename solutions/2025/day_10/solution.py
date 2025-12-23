@@ -46,6 +46,7 @@ class Solution(StrSplitSolution):
 
     @staticmethod
     def divideArray(num, denom):
+        factors = []
         for a, b in zip(num, denom):
             if a != 0 and b == 0:
                 return -1
@@ -53,11 +54,13 @@ class Solution(StrSplitSolution):
             if a and a % b != 0:
                 return -1
 
-        for a, b in zip(num, denom):
-            if a:
-                return a//b
-        
-            
+            if a and b:
+                factors.append(a//b)
+
+        if len(set(factors)) == 1:
+            return factors[0]
+
+        return -1
         
 
 
@@ -96,7 +99,7 @@ class Solution(StrSplitSolution):
         print(self.divideArray(indivisible, comboZero))
         print(self.divideArray(divisibleZero, comboZero))
         print(self.divideArray(multiplied, divisible))
-        print(self.divideArray(badMultiplied, divisible))
+        print("Bad multiplier",self.divideArray(badMultiplied, divisible))
 
         part2solution = 0
         for line in self.input:
@@ -124,7 +127,7 @@ class Solution(StrSplitSolution):
                     if dividedJoltage > 0:
                         return dividedJoltage
 
-                return min(min([2 + recNumPresses(tuple(remainingJoltage - combo)) for combo in buttonCombos]), min([1 + recNumPresses(tuple(remainingJoltage - button)) for button in buttons]))
+                return 2 + min([recNumPresses(tuple(remainingJoltage - combo)) for combo in buttonCombos])
 
 
 
