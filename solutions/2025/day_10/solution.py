@@ -7,7 +7,8 @@ from collections import deque
 from math import inf
 from functools import cache
 from itertools import combinations
-from numpy import array, dot
+from numpy import array, dot, linalg, cross
+
 
 
 class Solution(StrSplitSolution):
@@ -45,11 +46,19 @@ class Solution(StrSplitSolution):
 
     @staticmethod
     def divideArray(num, denom):
-        if dot(num, denom) == dot(denom, num):
-            return dot(num, denom)/dot(denom, denom)
+        for a, b in zip(num, denom):
+            if a != 0 and b == 0:
+                return -1
+
+            if a and a % b != 0:
+                return -1
+
+        for a, b in zip(num, denom):
+            if a:
+                return a//b
+        
             
         
-        return -1
 
 
 
@@ -76,6 +85,8 @@ class Solution(StrSplitSolution):
     def part_2(self) -> int:
         solution = 0
         divisible = array([2, 1, 1, 2])
+        badMultiplied = array([2, 2, 4, 4])
+        multiplied = array([4, 2, 2, 4])
         divisibleZero = array([0, 1, 1, 2])
         indivisible = array([3, 1, 1, 2])
         combo = array([2, 1, 1, 2])
@@ -84,6 +95,8 @@ class Solution(StrSplitSolution):
         print(self.divideArray(indivisible, combo))
         print(self.divideArray(indivisible, comboZero))
         print(self.divideArray(divisibleZero, comboZero))
+        print(self.divideArray(multiplied, divisible))
+        print(self.divideArray(badMultiplied, divisible))
 
         part2solution = 0
         for line in self.input:
@@ -101,13 +114,23 @@ class Solution(StrSplitSolution):
                 if all([x == 0 for x in remainingJoltage]):
                     return 0
 
+                for combo in buttonCombos:
+                    dividedJoltage = self.divideArray(remainingJoltage, combo)
+                    if dividedJoltage > 0:
+                        return 2 * dividedJoltage
 
-                if (remainingJoltage % 2 == 0).all():
-                    logJoltage = 2 * recNumPresses(tuple(remainingJoltage / 2))
-                    if logJoltage < inf:
-                        return logJoltage
+                for button in buttons:
+                    dividedJoltage = self.divideArray(remainingJoltage, button)
+                    if dividedJoltage > 0:
+                        return dividedJoltage
 
-                return min(min([1 + recNumPresses(tuple(remainingJoltage - currButton)) for currButton in buttons]), min([2 + recNumPresses(tuple(remainingJoltage - combo)) for combo in buttonCombos]))
+                return min(min([2 + recNumPresses(tuple(remainingJoltage - combo)) for combo in buttonCombos]), min([1 + recNumPresses(tuple(remainingJoltage - button)) for button in buttons]))
+
+
+
+
+
+
 
             assert recNumPresses((0,0,0,0)) == 0
             assert recNumPresses((-1,0,0,0)) == inf
@@ -117,6 +140,7 @@ class Solution(StrSplitSolution):
             self.debug(buttons, joltages)
 
             solution += recNumPresses(joltages)
+            print(solution)
 
         return solution 
 
