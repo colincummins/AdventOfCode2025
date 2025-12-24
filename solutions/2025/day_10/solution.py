@@ -8,7 +8,27 @@ from math import inf
 from functools import cache
 from itertools import combinations
 from numpy import array, dot, linalg, cross
+from collections import defaultdict
 
+
+class ComboDict():
+    def __init__(self, buttons):
+        self.dict = {}
+        allCombos = []
+        for i in range(1, len(buttons[0] + 1)):
+            allCombos.extend([(i, sum(combo)) for combo in combinations(buttons,i)])
+
+        allCombos.sort(key = lambda x: (list(x[1]), x[0]))
+
+        stack = [allCombos.pop()]
+        for length, combo in allCombos:
+            signature = tuple((combo > 0))
+            if self.dict.get(signature) is None:
+                self.dict[signature] = length, combo
+        
+
+        print(*self.dict.values(), sep="\n")
+        print(len(self.dict))
 
 
 class Solution(StrSplitSolution):
@@ -61,9 +81,6 @@ class Solution(StrSplitSolution):
             return factors[0]
 
         return -1
-        
-
-
 
     @answer(401)
     def part_1(self) -> int:
@@ -104,9 +121,15 @@ class Solution(StrSplitSolution):
         part2solution = 0
         for line in self.input:
             buttons, joltages = self.parseLine2(line)
+            combosByCoverage = ComboDict(buttons)
 
-            buttonCombos = [array(a + b) for a, b in combinations(buttons, 2)]
-            self.debug("2-Button Combos", buttonCombos)
+            self.debug("2-Button Combos", combosByCoverage)
+
+        return
+
+        """
+            # Only use combos that cover every non-zero element
+            # Filter combos further - there are some identical combos of different lengths, only keep the shortest
 
             @cache
             def recNumPresses(remainingJoltage: tuple[int]) -> int:
@@ -150,4 +173,4 @@ class Solution(StrSplitSolution):
     # @answer((0, 0))
     # def solve(self) -> tuple[int, int]:
     #   pass 
-
+"""
