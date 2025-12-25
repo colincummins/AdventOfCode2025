@@ -17,8 +17,6 @@ class ComboDict():
         for i in range(1, len(buttons[0] + 1)):
             allCombos.extend([(i, sum(combo)) for combo in combinations(buttons,i)])
 
-        print("Combos, pre-fiter:")
-        print(*allCombos, sep="\n")
 
         allCombos.sort(key = lambda x: (list(x[1]), x[0]))
 
@@ -27,10 +25,8 @@ class ComboDict():
             if (combo != self.stack[-1][1]).any():
                 self.stack.append((length, combo))
 
-        self.stack.sort(reverse = True, key = lambda x: sum(x[1]))
+        self.stack.sort(key = lambda x: sum(x[1]))
 
-        print("Available combos:")
-        print(*self.stack, sep="\n")
 
     def values(self):
         return self.stack
@@ -95,6 +91,7 @@ class Solution(StrSplitSolution):
 
 
     def recNumPresses(self, stepsTaken, remainingJoltage, comboPointer) -> None:
+        print("Remaining Joltage:", remainingJoltage)
         assert(not any([x < 0 for x in remainingJoltage]))
 
         if stepsTaken >= self.memo[*remainingJoltage] or stepsTaken >= self.shortestPathToZero:
@@ -109,19 +106,22 @@ class Solution(StrSplitSolution):
             self.memo[*remainingJoltage] = stepsTaken
             self.shortestPathToZero = min(self.shortestPathToZero, stepsTaken)
             return
+
+        if comboPointer >= len(self.comboDict.values()):
+            return
+
         
-        signature = tuple((remainingJoltage > 0))
         currSteps, combo = self.comboDict.values()[comboPointer]
-        print(self.comboDict.values()[comboPointer])
+        multiplier = 0
+        print("Multiplier", multiplier)
+        print("Current Combo",self.comboDict.values()[comboPointer])
 
-        factor = self.divideArray(remainingJoltage, combo)
-
-        multiplier = 1
         while all([a >= b for a, b in zip(remainingJoltage, combo * multiplier)]):
+            print("Multiplier", multiplier)
+            print("Current Combo",self.comboDict.values()[comboPointer])
             self.recNumPresses(stepsTaken + currSteps * multiplier, remainingJoltage - combo * multiplier, comboPointer + 1)
             multiplier += 1
 
-        self.recNumPresses(stepsTaken, remainingJoltage, comboPointer + 1)
 
 
     @answer(401)
@@ -167,8 +167,8 @@ class Solution(StrSplitSolution):
             self.memo = defaultdict(lambda: inf)
             self.comboDict = ComboDict(buttons)
 
-            self.debug("Combo Dictionary", self.comboDict)
             self.recNumPresses(0, joltages, 0)
+            assert(self.shortestPathToZero) != inf
             part2answer += self.shortestPathToZero
 
 
