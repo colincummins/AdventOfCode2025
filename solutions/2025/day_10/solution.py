@@ -8,36 +8,31 @@ from math import inf
 from itertools import combinations
 from numpy import array, int64
 from collections import defaultdict
-
-
-class ComboDict():
-    def __init__(self, buttons):
-        self.dict = defaultdict(list)
-        allCombos = []
-        for i in range(1, len(buttons[0] + 1)):
-            allCombos.extend([(i, sum(combo)) for combo in combinations(buttons,i)])
-
-
-        allCombos.sort(key = lambda x: (list(x[1]), x[0]))
-
-        self.stack = [allCombos.pop()]
-        for length, combo in allCombos:
-            if (combo != self.stack[-1][1]).any():
-                self.stack.append((length, combo))
-
-        self.stack.sort(key = lambda x: sum(x[1]))
-
-
-    def values(self):
-        return self.stack
-
-
-
+from functools import cache
 
 
 class Solution(StrSplitSolution):
     _year = 2025
     _day = 10
+
+    def createComboDict(self, buttons):
+        dict = defaultdict(list)
+        allCombos = []
+        for i in range(1, len(buttons[0] + 1)):
+            allCombos.extend([(i, *sum(combo)) for combo in combinations(buttons,i)])
+        
+        allCombos.sort()
+
+        for steps, *combo in allCombos:
+            dict[*(int(x) % 2 for x in combo)].append((steps, *combo))
+
+        print("Dictionary Created:")
+        print(*dict.items(), sep = "\n")
+
+        return dict
+
+
+
 
     def printReg(self, register):
         return "".join(map(lambda x: "." if x == "0" else "#", reversed(bin(register)[2:])))
@@ -64,7 +59,7 @@ class Solution(StrSplitSolution):
             registersTripped =  map(int, button.strip("()").split(","))
             for reg in registersTripped:
                 buttonArray[reg] = 1
-            buttons.append(array(buttonArray, dtype=int64))
+            buttons.append(array(buttonArray))
 
         return buttons, joltages
 
@@ -89,40 +84,27 @@ class Solution(StrSplitSolution):
 
         return 0
 
-
-    def recNumPresses(self, stepsTaken, remainingJoltage, comboPointer) -> None:
+    @cache
+    def recNumPresses(self, remainingJoltage) -> int:
+        remainingJoltage = array(remainingJoltage)
         print("Remaining Joltage:", remainingJoltage)
         assert(not any([x < 0 for x in remainingJoltage]))
 
-        if stepsTaken >= self.memo[*remainingJoltage] or stepsTaken >= self.shortestPathToZero:
-            return
-
-        self.memo[*remainingJoltage] = stepsTaken
-            
-        remainingJoltage = array(remainingJoltage, dtype=int64)
+        presses = inf
 
         if (remainingJoltage == 0).all():
-            print("FOUND ZERO")
-            self.memo[*remainingJoltage] = stepsTaken
-            self.shortestPathToZero = min(self.shortestPathToZero, stepsTaken)
-            return
+            return 0
 
-        if comboPointer >= len(self.comboDict.values()):
-            return
+        for steps, *combo in self.comboDict[tuple((remainingJoltage%2))]:
+            print("Might take {} steps with combo {}".format(steps,combo))
+            if (remainingJoltage >= combo).all():
+                print("Reduced:", (remainingJoltage - combo))
+                presses = min(presses, steps + 2 * self.recNumPresses(tuple([(a - b)//2 for a, b in zip(remainingJoltage, combo)])))
 
-        
-        currSteps, combo = self.comboDict.values()[comboPointer]
-        multiplier = 0
-        print("Multiplier", multiplier)
-        print("Current Combo",self.comboDict.values()[comboPointer])
+        print("Steps:", presses)
+        return presses
 
-        while all([a >= b for a, b in zip(remainingJoltage, combo * multiplier)]):
-            print("Multiplier", multiplier)
-            print("Current Combo",self.comboDict.values()[comboPointer])
-            self.recNumPresses(stepsTaken + currSteps * multiplier, remainingJoltage - combo * multiplier, comboPointer + 1)
-            multiplier += 1
-
-
+            
 
     @answer(401)
     def part_1(self) -> int:
@@ -145,34 +127,16 @@ class Solution(StrSplitSolution):
 
     # @answer(1234)
     def part_2(self) -> int:
-        """
-        divisible = array([2, 1, 1, 2])
-        badMultiplied = array([2, 2, 4, 4])
-        multiplied = array([4, 2, 2, 4])
-        divisibleZero = array([0, 1, 1, 2])
-        indivisible = array([3, 1, 1, 2])
-        combo = array([2, 1, 1, 2])
-        comboZero = array([0, 1, 1, 2])
-        print(self.divideArray(divisible, combo))
-        print(self.divideArray(indivisible, combo))
-        print(self.divideArray(indivisible, comboZero))
-        print(self.divideArray(divisibleZero, comboZero))
-        print(self.divideArray(multiplied, divisible))
-        print("Bad multiplier",self.divideArray(badMultiplied, divisible))
-        """
         part2answer = 0
         for line in self.input:
-            self.shortestPathToZero = inf
+            self.recNumPresses.cache_clear()
             buttons, joltages = self.parseLine2(line)
-            self.memo = defaultdict(lambda: inf)
-            self.comboDict = ComboDict(buttons)
-
-            self.recNumPresses(0, joltages, 0)
-            assert(self.shortestPathToZero) != inf
-            part2answer += self.shortestPathToZero
-
+            self.comboDict = self.createComboDict(buttons)
+            part2answer += self.recNumPresses(joltages)
 
         return part2answer
+
+
 
 
 
