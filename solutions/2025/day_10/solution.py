@@ -108,7 +108,9 @@ class Solution(StrSplitSolution):
                     presses = min(presses, steps + 2 * self.recNumPresses(tuple([(a - b)//2 for a, b in zip(remainingJoltage, combo)])))
 
             return presses
-        return helper(joltage)
+        result = helper(joltage)
+        helper.cache_clear()
+        return result
 
             
 
@@ -136,8 +138,10 @@ class Solution(StrSplitSolution):
         part2answer = 0
         for line in self.input:
             buttons, joltages = self.parseLine2(line)
+            print("Joltage", joltages)
             self.comboDict = self.createComboDict(buttons)
             partialAnswer = self.recNumPresses(joltages)
+            assert(partialAnswer < inf)
             print("Part 2 partial:", partialAnswer)
             part2answer += partialAnswer
 
