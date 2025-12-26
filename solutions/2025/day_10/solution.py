@@ -6,7 +6,7 @@ from ...base import StrSplitSolution, answer
 from collections import deque
 from math import inf
 from itertools import combinations
-from numpy import array, int64
+from numpy import array, zeros
 from collections import defaultdict
 from functools import cache
 
@@ -31,6 +31,8 @@ class Solution(StrSplitSolution):
             else:
                 print("Spottded duplicate combo", steps, combo)
             prevCombo = combo
+
+        dict[tuple([0] * len(buttons[0]))].append(tuple([0] * (len(buttons[0]) + 1)))
 
         print("Dictionary Created:")
         print(*dict.items(), sep = "\n")
@@ -94,7 +96,6 @@ class Solution(StrSplitSolution):
         @cache
         def helper(remainingJoltage):
             remainingJoltage = array(remainingJoltage)
-            print("Remaining Joltage:", remainingJoltage)
             assert(not any([x < 0 for x in remainingJoltage]))
 
             if (remainingJoltage == 0).all():
@@ -103,12 +104,9 @@ class Solution(StrSplitSolution):
 
             presses = inf
             for steps, *combo in self.comboDict[tuple((remainingJoltage%2))]:
-                print("Might take {} steps with combo {}".format(steps,combo))
                 if (remainingJoltage >= combo).all():
-                    print("Reduced:", remainingJoltage - combo)
                     presses = min(presses, steps + 2 * self.recNumPresses(tuple([(a - b)//2 for a, b in zip(remainingJoltage, combo)])))
 
-            print("Steps:", presses)
             return presses
         return helper(joltage)
 
