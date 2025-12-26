@@ -3,19 +3,50 @@
 # puzzle prompt: https://adventofcode.com/2025/day/10
 
 from ...base import StrSplitSolution, answer
-from collections import deque, defaultdict
-from heapq import heappush, heappop
+from collections import deque
 from math import inf
+from itertools import combinations
+from numpy import array, zeros
+from collections import defaultdict
+from functools import cache
 
 
 class Solution(StrSplitSolution):
     _year = 2025
     _day = 10
 
+    def createComboDict(self, buttons, registerCount):
+        print(buttons)
+        dict = defaultdict(list)
+        allCombos = []
+        allCombos.append(tuple([0] * (len(buttons[0]) + 1)))
+        for i in range(1, registerCount + 1):
+            allCombos.extend([(i, *sum(combo)) for combo in combinations(buttons,i)])
+
+        allCombos.sort(key = lambda x: (x[1:], x[0] ))
+        
+        prevCombo = None
+        for steps, *combo in allCombos:
+            if combo != prevCombo:
+                dict[*(int(x) % 2 for x in combo)].append((steps, *combo))
+            else:
+                print("Spottded duplicate combo", steps, combo)
+            prevCombo = combo
+
+
+        print("Dictionary Created:")
+        print(*dict.items(), sep = "\n")
+
+
+        return dict
+
+
+
+
     def printReg(self, register):
         return "".join(map(lambda x: "." if x == "0" else "#", reversed(bin(register)[2:])))
 
-    def parseLine(self, line):
+    def parseLine1(self, line):
         elements = line.split(" ")
         lights = int("".join(map(lambda x: "1" if x=="#" else "0", elements[0].strip("[]")[::-1])),2)
         buttons = []
@@ -28,90 +59,102 @@ class Solution(StrSplitSolution):
 
         return lights, buttons, joltages
 
-    def parseInput(self):
-        self.input = [self.parseLine(line) for line in self.input]
+    def parseLine2(self, line):
+        elements = line.split(" ")
+        joltages = tuple(map(int, elements[-1].strip("{}").split(",")))
+        buttons = []
+        for button in elements[1:-1]:
+            buttonArray = [0] * len(joltages)
+            registersTripped =  map(int, button.strip("()").split(","))
+            for reg in registersTripped:
+                buttonArray[reg] = 1
+            buttons.append(array(buttonArray))
 
-    def getAstar(self, joltages: tuple[int]) -> int:
-        return (sum(map(lambda x: x**2, joltages)))**(1/len(joltages))
+        return buttons, joltages
+
+    @staticmethod
+    def divideArray(num, denom):
+        factors = []
+        for a, b in zip(num, denom):
+            if a != 0 and b == 0:
+                return 0
+
+            if a and a % b != 0:
+                return 0
+
+            if a < b:
+                return 0
+                
+            if a and b:
+                factors.append(a//b)
+
+        if len(set(factors)) == 1:
+            return factors[0]
+
+        return 0
+
+    def recNumPresses(self, joltage) -> int:
+        @cache
+        def helper(remainingJoltage):
+            remainingJoltage = array(remainingJoltage)
+            assert(not any([x < 0 for x in remainingJoltage]))
+
+            if (remainingJoltage == 0).all():
+                return 0
 
 
+            presses = inf
+            for steps, *combo in self.comboDict[tuple((remainingJoltage%2))]:
+                if (remainingJoltage >= combo).all():
+                    presses = min(presses, steps + 2 * helper(tuple([(a - b)//2 for a, b in zip(remainingJoltage, combo)])))
 
+            return presses
+        result = helper(joltage)
+        helper.cache_clear()
+        return result
 
-    # @answer(1234)
+            
+
+    @answer(401)
     def part_1(self) -> int:
-        pass
-
-    # @answer(1234)
-    def part_2(self) -> int:
-        pass
-
-    # @answer((1234, 4567))
-    def solve(self) -> tuple[int, int]:
         part1 = 0
-        self.parseInput()
-        for lights, buttons, joltages in self.input:
+        for line in self.input:
+            lights, buttons, joltages = self.parseLine1(line)
             visited = set()
             q = deque([(0, 0)])
             while q:
-                self.debug(q)
                 steps, curr = q.popleft()
                 if curr in visited:
                     continue
                 visited.add(curr)
                 if curr == lights:
-                    self.debug(steps)
                     part1 += steps
                     break
                 for button in buttons:
                     q.append((steps + 1, button ^ curr))
+        return part1
 
-        #part 2
-        part2 = 0
-        for _, buttons, joltages in self.input:
-            self.debug("New Line:")
-            visited = set()
+    # @answer(1234)
+    def part_2(self) -> int:
+        part2answer = 0
+        for line in self.input:
+            buttons, joltages = self.parseLine2(line)
+            print("Joltage", joltages)
+            self.comboDict = self.createComboDict(buttons, len(joltages))
+            partialAnswer = self.recNumPresses(joltages)
+            assert(partialAnswer < inf)
+            print("Part 2 partial:", partialAnswer)
+            part2answer += partialAnswer
 
-            dist = defaultdict(lambda: inf)
-            astar = defaultdict(lambda: inf)
 
-            dist[joltages] = 0
-            astar[joltages] = self.getAstar(joltages)
-
-            # AStar Distance, Current Distance, Joltages
-            heap = [(0, 0, tuple(joltages))]
-            visited = set()
-
-            while heap:
-                self.debug("Lights:", lights, "Buttons:", buttons, "Joltages:", *joltages)
-                currAStar, currDist, joltages = heappop(heap)
-                visited.add(joltages)
-                if all(x == 0 for x in joltages):
-                    part2 += currDist
-                    break
-                for button in buttons:
-                    neighbor = list(joltages)
-                    digit = 0
-                    while button != 0:
-                        self.debug("Button:", button)
-                        if button & 1:
-                            neighbor[digit] -= 1
-                        button >>= 1 
-                        digit += 1
-                    if any(x < 0 for x in neighbor):
-                        continue
-                    neighbor = tuple(neighbor)
-                    if dist[joltages] + 1 < dist[neighbor]:
-                        dist[neighbor] = dist[joltages] + 1
-                        astar[neighbor] = dist[joltages] + 1 + self.getAstar(neighbor)
-                        if neighbor not in visited:
-                            heappush(heap, (astar[neighbor], dist[neighbor], neighbor))
+        return part2answer
 
 
 
 
 
-            # Remember - no negative joltages allowed
 
 
-        return (part1, part2)
-
+    # @answer((0, 0))
+    # def solve(self) -> tuple[int, int]:
+    #   pass 
