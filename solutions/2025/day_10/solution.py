@@ -38,6 +38,8 @@ class Solution(StrSplitSolution):
         print("Dictionary Created:")
         print(*dict.items(), sep = "\n")
 
+        self.allCombos = [(steps, *combo) for _ in allCombos]
+
         return dict
 
 
@@ -106,7 +108,12 @@ class Solution(StrSplitSolution):
             presses = inf
             for steps, *combo in self.comboDict[tuple((remainingJoltage%2))]:
                 if (remainingJoltage >= combo).all():
-                    presses = min(presses, steps + 2 * self.recNumPresses(tuple([(a - b)//2 for a, b in zip(remainingJoltage, combo)])))
+                    presses = min(presses, steps + 2 * helper(tuple([(a - b)//2 for a, b in zip(remainingJoltage, combo)])))
+
+            if  presses == inf:
+                for steps, *combo in self.allCombos:
+                    if (remainingJoltage >= combo).all():
+                        presses = min(presses, steps + helper(tuple([(a - b) for a, b in zip(remainingJoltage, combo)])))
 
             return presses
         result = helper(joltage)
