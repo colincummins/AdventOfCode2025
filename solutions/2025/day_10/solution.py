@@ -15,12 +15,12 @@ class Solution(StrSplitSolution):
     _year = 2025
     _day = 10
 
-    def createComboDict(self, buttons):
+    def createComboDict(self, buttons, registerCount):
         print(buttons)
         dict = defaultdict(list)
         allCombos = []
         allCombos.append(tuple([0] * (len(buttons[0]) + 1)))
-        for i in range(1, len(buttons[0] + 1)):
+        for i in range(1, registerCount + 1):
             allCombos.extend([(i, *sum(combo)) for combo in combinations(buttons,i)])
 
         allCombos.sort(key = lambda x: (x[1:], x[0] ))
@@ -140,7 +140,7 @@ class Solution(StrSplitSolution):
         for line in self.input:
             buttons, joltages = self.parseLine2(line)
             print("Joltage", joltages)
-            self.comboDict = self.createComboDict(buttons)
+            self.comboDict = self.createComboDict(buttons, len(joltages))
             partialAnswer = self.recNumPresses(joltages)
             assert(partialAnswer < inf)
             print("Part 2 partial:", partialAnswer)
