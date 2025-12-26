@@ -41,7 +41,30 @@ class Solution(StrSplitSolution):
 
     # @answer(1234)
     def part_2(self) -> int:
-        pass
+        downstreamDict = defaultdict(list)
+        visited = set()
+        self.paths = 0
+        for line in self.input:
+            node, downstreamNodes = line.split(": ")
+            downstreamDict[node].extend(list(downstreamNodes.split(" ")))
+
+        def aux(node: str) -> None:
+            if node in visited:
+                return
+
+            visited.add(node)
+
+            if node == "out" and "dac" in visited and "fft" in visited:
+                self.paths += 1
+
+            else:
+                for downstream in downstreamDict[node]:
+                    aux(downstream)
+
+            visited.remove(node)
+
+        aux("svr")
+        return self.paths
 
     # @answer((1234, 4567))
     # def solve(self) -> tuple[int, int]:
