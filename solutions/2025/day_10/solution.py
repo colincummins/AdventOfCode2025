@@ -20,11 +20,14 @@ class Solution(StrSplitSolution):
         allCombos = []
         for i in range(1, len(buttons[0] + 1)):
             allCombos.extend([(i, *sum(combo)) for combo in combinations(buttons,i)])
-        
-        allCombos.sort()
 
+        allCombos.sort(key = lambda x: (x[1:] , x[0]))
+        
+        prevCombo = None
         for steps, *combo in allCombos:
-            dict[*(int(x) % 2 for x in combo)].append((steps, *combo))
+            if combo != prevCombo:
+                dict[*(int(x) % 2 for x in combo)].append((steps, *combo))
+            prevCombo = combo
 
         print("Dictionary Created:")
         print(*dict.items(), sep = "\n")
@@ -98,7 +101,7 @@ class Solution(StrSplitSolution):
         for steps, *combo in self.comboDict[tuple((remainingJoltage%2))]:
             print("Might take {} steps with combo {}".format(steps,combo))
             if (remainingJoltage >= combo).all():
-                print("Reduced:", (remainingJoltage - combo))
+                print("Reduced:", remainingJoltage - combo)
                 presses = min(presses, steps + 2 * self.recNumPresses(tuple([(a - b)//2 for a, b in zip(remainingJoltage, combo)])))
 
         print("Steps:", presses)
@@ -132,7 +135,9 @@ class Solution(StrSplitSolution):
             self.recNumPresses.cache_clear()
             buttons, joltages = self.parseLine2(line)
             self.comboDict = self.createComboDict(buttons)
-            part2answer += self.recNumPresses(joltages)
+            partialAnswer = self.recNumPresses(joltages)
+            print("Part 2 partial:", partialAnswer)
+
 
         return part2answer
 
