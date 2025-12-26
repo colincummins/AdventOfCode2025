@@ -111,10 +111,9 @@ class Solution(StrSplitSolution):
                 if (remainingJoltage >= combo).all():
                     presses = min(presses, steps + 2 * helper(tuple([(a - b)//2 for a, b in zip(remainingJoltage, combo)])))
 
-            if  presses == inf:
-                for steps, *combo in self.allCombos:
-                    if (remainingJoltage >= combo).all():
-                        presses = min(presses, steps + helper(tuple([(a - b) for a, b in zip(remainingJoltage, combo)])))
+            for steps, *combo in self.allCombos:
+                if (remainingJoltage >= combo).all():
+                    presses = min(presses, steps + helper(tuple([(a - b) for a, b in zip(remainingJoltage, combo)])))
 
             return presses
         result = helper(joltage)
