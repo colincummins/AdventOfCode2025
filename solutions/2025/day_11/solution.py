@@ -3,34 +3,13 @@
 # puzzle prompt: https://adventofcode.com/2025/day/11
 
 from ...base import StrSplitSolution, answer
-from collections import defaultdict
+import networkx
+from itertools import chain
 
-class Device():
-    def __init__(self, id):
-        self.visited = False
-        self.keep = False
-        self.id = id
-        self.downstream = []
-        self.upstream = []
-
-    def __sub__(self, other: "Device"):
-        self.downstream.remove(other)
-        other.upstream.remove(self)
-
-
-    def __repr__(self):
-        return "({}: ^{} _{})".format(self.id, *[x.id for x in self.upstream] if self.upstream else "xxx", *[x.id for x in self.downstream] if self.downstream else "xxx")
-
-    def __hash__(self):
-        return hash(self.id)
 
 class Solution(StrSplitSolution):
     _year = 2025
     _day = 11
-
-    def link(self, a: Device, b: Device):
-        a.downstream.append(b)
-        b.upstream.append(a)
 
     @answer(470)
     def part_1(self) -> int:
@@ -63,20 +42,22 @@ class Solution(StrSplitSolution):
 
     # @answer(1234)
     def part_2(self) -> int:
-        nodeDict = {}
+        G = networkx.DiGraph()
         for line in self.input:
-            id, downstreamNodeIDs = line.split(": ")
-            downstreamNodeIDs = downstreamNodeIDs.split(" ")
-            print("Upstreamm ID", id)
-            if id not in nodeDict:
-                nodeDict[id] = Device(id)
-            for downstreamID in downstreamNodeIDs:
-                print("Downstream ID", downstreamID)
-                if downstreamID not in nodeDict:
-                    nodeDict[downstreamID] = Device(downstreamID)
-                self.link(nodeDict[id], nodeDict[downstreamID])
+            node, downstream = line.split(": ")
+            for next in downstream.split(" "):
+                G.add_edge(node, next)
 
-        print(nodeDict.values())
+        goodNodes = set(chain.from_iterable(networkx.all_simple_paths(G, "dac", "out")))
+        outEdges = G.out_edges(goodNodes)
+        networkx.is_directed_acyclic_graph(G)
+        return len(*networkx.all_simple_paths(G,"svr","fft")) * len(*networkx.all_simple_paths(G,"fft","dac")) * len(*networkx.all_simple_paths(G,"dac","out"))
+
+
+
+        
+
+
 
 
     # @answer((1234, 4567))
