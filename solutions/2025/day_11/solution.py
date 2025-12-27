@@ -41,19 +41,21 @@ class Solution(StrSplitSolution):
 
     # @answer(1234)
     def part_2(self) -> int:
-        return
         downstreamDict = defaultdict(set)
         upstreamDict = defaultdict(set)
         visited = set()
         self.paths = 0
         for line in self.input:
             node, downstreamNodes = line.split(": ")
-            downstreamDict[node] |= set(list(downstreamNodes.split(" ")))
+            downstreamDict[node].update(downstreamNodes.split(" "))
             for successor in downstreamNodes:
                 upstreamDict[successor].add(node)
+            
+        print(downstreamDict)
+
         
 
-        def aux(node: str, dest: str) -> None:
+        def aux(node: str, dest: str, dict) -> None:
             if node in visited:
                 return
 
@@ -63,12 +65,12 @@ class Solution(StrSplitSolution):
                 self.paths += 1
 
             else:
-                for downstream in downstreamDict[node]:
-                    aux(downstream, dest)
+                for nextNode in dict[node]: 
+                    aux(nextNode, dest, dict)
 
             visited.remove(node)
 
-        aux("svr", "fft")
+        aux("you", "out", downstreamDict)
 
         """
         svr -> dac ???
