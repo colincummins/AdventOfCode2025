@@ -82,28 +82,33 @@ class Solution(StrSplitSolution):
             visited.add(node)
 
             if node != dest:
+                print(node,"->",dict[node], dict[node] & dontPrune)
+                dict[node] &= dontPrune 
                 for next in dict[node]:
-                    if next not in dontPrune:
-                        print("Pruned")
-                        dict[node].remove(next)
-                    else:
-                        prune(node, dest, dict, dontPrune)
+                    prune(next, dest, dict, dontPrune)
 
 
             visited.remove(node)
 
-
-        aux("dac", "out", downstreamDict, dontPrune) 
-        print(dontPrune)
-        prune("dac", "out", downstreamDict, dontPrune)
         dontPrune = set()
         self.paths = 0
-        aux("fft", "svr", upstreamDict, dontPrune)
-        print(dontPrune)
-        prune("svr", "fft", downstreamDict, dontPrune)
-        print(dontPrune)
-        prune("fft", "svr", upstreamDict, dontPrune)
+        visited = set()
+        aux("dac", "out", downstreamDict, dontPrune) 
+        prune("dac", "out", downstreamDict, dontPrune)
+
+        dontPrune = set()
         self.paths = 0
+        visited = set()
+        aux("fft", "svr", upstreamDict, dontPrune)
+        print("Safe nodes fft->svr")
+        print(*dontPrune)
+        self.paths = 0
+        visited = set()
+        prune("svr", "fft", downstreamDict, dontPrune)
+        print(*dontPrune)
+        self.paths = 0
+        visited = set()
+        aux("svr","fft", downstreamDict)
         print(self.paths)
 
 
