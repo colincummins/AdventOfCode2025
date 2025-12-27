@@ -68,12 +68,12 @@ class Solution(StrSplitSolution):
 
             else:
                 for nextNode in dict[node]: 
-                    aux(nextNode, dest, dict)
+                    aux(nextNode, dest, dict, reject)
 
             visited.remove(node)
 
 
-        aux("svr", "fft", downstreamDict, "dac") 
+        aux("dac", "out", downstreamDict, "out") 
 
 
         """
