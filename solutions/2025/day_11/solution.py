@@ -48,15 +48,17 @@ class Solution(StrSplitSolution):
         for line in self.input:
             node, downstreamNodes = line.split(": ")
             downstreamDict[node].update(downstreamNodes.split(" "))
-            for successor in downstreamNodes:
+            for successor in downstreamNodes.split():
                 upstreamDict[successor].add(node)
-            
-        print(downstreamDict)
+        print("Downstream:") 
+        print(*downstreamDict.items(), sep="\n")
+        print("Upstream:") 
+        print(*upstreamDict.items(), sep="\n")
 
         
 
-        def aux(node: str, dest: str, dict) -> None:
-            if node in visited:
+        def aux(node: str, dest: str, dict, reject = None) -> None:
+            if node in visited or node == reject:
                 return
 
             visited.add(node)
@@ -70,7 +72,9 @@ class Solution(StrSplitSolution):
 
             visited.remove(node)
 
-        aux("you", "out", downstreamDict)
+
+        aux("fft", "dac", downstreamDict) 
+
 
         """
         svr -> dac ???
