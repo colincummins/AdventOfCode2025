@@ -85,6 +85,10 @@ class Solution(StrSplitSolution):
 
             visited.remove(node)
 
+        """
+        TODO: Update both dicts after each prune, or just make doubly linked nodes
+        """
+
         dontPrune = set()
         self.paths = 0
         visited = set()
