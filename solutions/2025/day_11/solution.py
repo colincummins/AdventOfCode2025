@@ -63,7 +63,7 @@ class Solution(StrSplitSolution):
 
             visited.remove(node)
 
-        aux("you", "out")
+        aux("svr", "fft")
         return self.paths
 
     # @answer((1234, 4567))
