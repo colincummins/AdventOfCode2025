@@ -51,10 +51,6 @@ class Solution(StrSplitSolution):
             downstreamDict[node].update(downstreamNodes.split(" "))
             for successor in downstreamNodes.split():
                 upstreamDict[successor].add(node)
-        print("Downstream:") 
-        print(*downstreamDict.items(), sep="\n")
-        print("Upstream:") 
-        print(*upstreamDict.items(), sep="\n")
 
         
 
@@ -82,7 +78,6 @@ class Solution(StrSplitSolution):
             visited.add(node)
 
             if node != dest:
-                print(node,"->",dict[node], dict[node] & dontPrune)
                 dict[node] &= dontPrune 
                 for next in dict[node]:
                     prune(next, dest, dict, dontPrune)
@@ -94,18 +89,20 @@ class Solution(StrSplitSolution):
         self.paths = 0
         visited = set()
         aux("dac", "out", downstreamDict, dontPrune) 
+        visited = set()
         prune("dac", "out", downstreamDict, dontPrune)
+        self.paths = 0
+        visited = set()
+        aux("out", "dac", downstreamDict, dontPrune)
+        print(self.paths)
 
         dontPrune = set()
         self.paths = 0
         visited = set()
         aux("fft", "svr", upstreamDict, dontPrune)
-        print("Safe nodes fft->svr")
-        print(*dontPrune)
         self.paths = 0
         visited = set()
         prune("svr", "fft", downstreamDict, dontPrune)
-        print(*dontPrune)
         self.paths = 0
         visited = set()
         aux("svr","fft", downstreamDict)
