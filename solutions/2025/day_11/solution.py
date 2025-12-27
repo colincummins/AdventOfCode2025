@@ -84,6 +84,7 @@ class Solution(StrSplitSolution):
             if node != dest:
                 for next in dict[node]:
                     if next not in dontPrune:
+                        print("Pruned")
                         dict[node].remove(next)
                     else:
                         prune(node, dest, dict, dontPrune)
@@ -98,11 +99,12 @@ class Solution(StrSplitSolution):
         dontPrune = set()
         self.paths = 0
         aux("fft", "svr", upstreamDict, dontPrune)
+        print(dontPrune)
+        prune("svr", "fft", downstreamDict, dontPrune)
+        print(dontPrune)
         prune("fft", "svr", upstreamDict, dontPrune)
-        dontPrune = set()
         self.paths = 0
-        aux("fft", "svr", upstreamDict, dontPrune)
-        aux("fft", "svr", upstreamDict, dontPrune)
+        print(self.paths)
 
 
         """
@@ -116,7 +118,6 @@ class Solution(StrSplitSolution):
         O   svr->fft->dac->out
         x   svr->dac->fft->out  (because there are no paths from dac to fft)
         """
-        return self.paths
 
     # @answer((1234, 4567))
     # def solve(self) -> tuple[int, int]:
