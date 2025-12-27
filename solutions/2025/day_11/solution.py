@@ -5,10 +5,32 @@
 from ...base import StrSplitSolution, answer
 from collections import defaultdict
 
+class Device():
+    def __init__(self, id):
+        self.visited = False
+        self.keep = False
+        self.id = id
+        self.downstream = []
+        self.upstream = []
+
+    def __sub__(self, other: "Device"):
+        self.downstream.remove(other)
+        other.upstream.remove(self)
+
+
+    def __repr__(self):
+        return "({}: ^{} _{})".format(self.id, *[x.id for x in self.upstream] if self.upstream else "xxx", *[x.id for x in self.downstream] if self.downstream else "xxx")
+
+    def __hash__(self):
+        return hash(self.id)
 
 class Solution(StrSplitSolution):
     _year = 2025
     _day = 11
+
+    def link(self, a: Device, b: Device):
+        a.downstream.append(b)
+        b.upstream.append(a)
 
     @answer(470)
     def part_1(self) -> int:
@@ -41,89 +63,21 @@ class Solution(StrSplitSolution):
 
     # @answer(1234)
     def part_2(self) -> int:
-        downstreamDict = defaultdict(set)
-        upstreamDict = defaultdict(set)
-        dontPrune = set()
-        visited = set()
-        self.paths = 0
+        nodeDict = {}
         for line in self.input:
-            node, downstreamNodes = line.split(": ")
-            downstreamDict[node].update(downstreamNodes.split(" "))
-            for successor in downstreamNodes.split():
-                upstreamDict[successor].add(node)
+            id, downstreamNodeIDs = line.split(": ")
+            downstreamNodeIDs = downstreamNodeIDs.split(" ")
+            print("Upstreamm ID", id)
+            if id not in nodeDict:
+                nodeDict[id] = Device(id)
+            for downstreamID in downstreamNodeIDs:
+                print("Downstream ID", downstreamID)
+                if downstreamID not in nodeDict:
+                    nodeDict[downstreamID] = Device(downstreamID)
+                self.link(nodeDict[id], nodeDict[downstreamID])
 
-        
+        print(nodeDict.values())
 
-        def aux(node: str, dest: str, dict, dontPrune = set()) -> None:
-            if node in visited:
-                return
-
-            visited.add(node)
-
-            if node == dest:
-                dontPrune |= visited
-                dontPrune.add(dest)
-                self.paths += 1
-
-            else:
-                for nextNode in dict[node]: 
-                    aux(nextNode, dest, dict, dontPrune)
-
-            visited.remove(node)
-
-        def prune(node: str, dest: str, dict, dontPrune) -> None:
-            if node in visited:
-                return
-
-            visited.add(node)
-
-            if node != dest:
-                dict[node] &= dontPrune 
-                for next in dict[node]:
-                    prune(next, dest, dict, dontPrune)
-
-
-            visited.remove(node)
-
-        """
-        TODO: Update both dicts after each prune, or just make doubly linked nodes
-        """
-
-        dontPrune = set()
-        self.paths = 0
-        visited = set()
-        aux("dac", "out", downstreamDict, dontPrune) 
-        visited = set()
-        prune("dac", "out", downstreamDict, dontPrune)
-        self.paths = 0
-        visited = set()
-        aux("out", "dac", downstreamDict, dontPrune)
-        print(self.paths)
-
-        dontPrune = set()
-        self.paths = 0
-        visited = set()
-        aux("fft", "svr", upstreamDict, dontPrune)
-        self.paths = 0
-        visited = set()
-        prune("svr", "fft", downstreamDict, dontPrune)
-        self.paths = 0
-        visited = set()
-        aux("svr","fft", downstreamDict)
-        print(self.paths)
-
-
-        """
-        svr -> dac ???
-        svr -> fft ???
-        dac -> out 8281
-        fft -> out ???
-        dac -> fft 0
-        fft -> dac ???
-
-        O   svr->fft->dac->out
-        x   svr->dac->fft->out  (because there are no paths from dac to fft)
-        """
 
     # @answer((1234, 4567))
     # def solve(self) -> tuple[int, int]:
