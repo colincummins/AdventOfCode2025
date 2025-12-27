@@ -73,7 +73,7 @@ class Solution(StrSplitSolution):
             visited.remove(node)
 
 
-        aux("dac", "out", downstreamDict, "out") 
+        aux("svr", "fft", downstreamDict, "dac") 
 
 
         """
