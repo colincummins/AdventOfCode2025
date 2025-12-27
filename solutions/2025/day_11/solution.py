@@ -43,6 +43,7 @@ class Solution(StrSplitSolution):
     def part_2(self) -> int:
         downstreamDict = defaultdict(set)
         upstreamDict = defaultdict(set)
+        dontPrune = set()
         visited = set()
         self.paths = 0
         for line in self.input:
@@ -57,23 +58,51 @@ class Solution(StrSplitSolution):
 
         
 
-        def aux(node: str, dest: str, dict, reject = None) -> None:
-            if node in visited or node == reject:
+        def aux(node: str, dest: str, dict, dontPrune = set()) -> None:
+            if node in visited:
                 return
 
             visited.add(node)
 
             if node == dest:
+                dontPrune |= visited
+                dontPrune.add(dest)
                 self.paths += 1
 
             else:
                 for nextNode in dict[node]: 
-                    aux(nextNode, dest, dict, reject)
+                    aux(nextNode, dest, dict, dontPrune)
+
+            visited.remove(node)
+
+        def prune(node: str, dest: str, dict, dontPrune) -> None:
+            if node in visited:
+                return
+
+            visited.add(node)
+
+            if node != dest:
+                for next in dict[node]:
+                    if next not in dontPrune:
+                        dict[node].remove(next)
+                    else:
+                        prune(node, dest, dict, dontPrune)
+
 
             visited.remove(node)
 
 
-        aux("svr", "fft", downstreamDict, "dac") 
+        aux("dac", "out", downstreamDict, dontPrune) 
+        print(dontPrune)
+        prune("dac", "out", downstreamDict, dontPrune)
+        dontPrune = set()
+        self.paths = 0
+        aux("fft", "svr", upstreamDict, dontPrune)
+        prune("fft", "svr", upstreamDict, dontPrune)
+        dontPrune = set()
+        self.paths = 0
+        aux("fft", "svr", upstreamDict, dontPrune)
+        aux("fft", "svr", upstreamDict, dontPrune)
 
 
         """
